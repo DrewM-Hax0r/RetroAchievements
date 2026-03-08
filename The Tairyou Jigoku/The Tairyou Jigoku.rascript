@@ -94,19 +94,23 @@ function ItemCollectionFlags_7() => byte(0x189676C)
 //           BIT0 = After picking up the stick next to the first rabbit note in Forest-1.
 //           BIT1 = After picking up the bug spray behind the big tree in Forest-1.
 //           BIT2 = After picking up the bug spray past the branching path in Forest-1.
-function ItemCollectionFlags_8() => byte(0x1896778)
+function ItemCollectionFlag_Forest1_1() => bit0(0x1896778)
+function ItemCollectionFlag_Forest1_2() => bit1(0x1896778)
+function ItemCollectionFlag_Forest1_3() => bit2(0x1896778)
 
 // $189677C: [8-bit] Item Collection Flags
 //           
+//           BIT0 = After picking up the golf club in Forest-2.
 //           BIT1 = After picking up the candies next to the bridge in Forest-2.
 //           BIT2 = After picking up the baseball bat in Forest-2.
-//           BIT3 = After picking up the golf club in Forest-2.
-function ItemCollectionFlags_9() => byte(0x189677C)
+function ItemCollectionFlag_Forest2_1() => bit0(0x189677C)
+function ItemCollectionFlag_Forest2_2() => bit1(0x189677C)
+function ItemCollectionFlag_Forest2_3() => bit2(0x189677C)
 
 // $1896780: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up the bug spray in Forest-3.
-function ItemCollectionFlags_10() => byte(0x1896780)
+function ItemCollectionFlag_Forest3_1() => bit0(0x1896780)
 
 // $1896784: [8-bit] Item Collection Flags
 //           
@@ -116,7 +120,9 @@ function ItemCollectionFlags_10() => byte(0x1896780)
 //           BIT3 = After picking up the meds dropped by the rabbit in Forest-4.
 //           BIT4 = After picking up the candies dropped by the rabbit in Forest-4.
 //           BIT5 = After picking up the toolshed key dropped by the rabbit in Forest-4.
-function ItemCollectionFlags_11() => byte(0x1896784)
+function ItemCollectionFlag_Forest4_1() => bit0(0x1896784)
+function ItemCollectionFlag_Forest4_2() => bit1(0x1896784)
+function ItemCollectionFlag_Forest4_3() => bit2(0x1896784)
 
 // $189678C: [8-bit] Item Collection Flags
 //           
@@ -245,6 +251,7 @@ function ForestCutsceneFlags_2() => byte(0x18967EC)
 //           BIT0 = After obtaining the golden axe from the toolshed in Forest-3.
 //           BIT1 = After entering Forest-3 for the first time.
 function ForestCutsceneFlags_3() => byte(0x18967F0)
+function CutsceneFlag_GoldenAxe() => bit0(0x18967F0)
 
 // $18967F4: [8-bit] Forest Cutscene Flags
 //           
@@ -453,12 +460,11 @@ function EnemiesThrown() => byte(0x18968C8)
 //           BIT4 = After defeating the boss in Castle-9.
 //           BIT5 = After defeating the boss in Town-4.
 //           BIT6 = After defeating the final boss in School-4.
-function ProgressionFlags() => byte(0x18968D0)
-function HasDefeatedSewerBoss() => bit2(0x18968D0) == 0x01
-function HasDefeatedForestBoss() => bit3(0x18968D0) == 0x01
-function HasDefeatedCastleBoss() => bit4(0x18968D0) == 0x01
-function HasDefeatedTownBoss() => bit5(0x18968D0) == 0x01
-function HasDefeatedFinalBoss() => bit6(0x18968D0) == 0x01
+function DefeatedSewerBossFlag() => bit2(0x18968D0)
+function DefeatedForestBossFlag() => bit3(0x18968D0)
+function DefeatedCastleBossFlag() => bit4(0x18968D0)
+function DefeatedTownBossFlag() => bit5(0x18968D0)
+function DefeatedFinalBossFlag() => bit6(0x18968D0)
 
 // $18968D1: [8-bit] Progression Flags
 //           ???
@@ -489,6 +495,13 @@ function ProgressionFlags_3() => byte(0x18968D2)
 //           0x09 = Black Fade Out Transition
 //           0x0A = Loading between game areas
 function GameStateFlag() => byte(0x18DA0F0)
+
+// $18DACE0: [8-bit] Game Freeze Flag
+//           This flag stops time in-game when set. It is used mainly for when menus are open to prevent the game from continuing in the background.
+//
+//           0x00 = Game Running
+//           0x01 = Game Frozen
+function GameFreezeFlag() => byte(0x18DACE0)
 
 // $18DACFC: [32-bit] Map Identifier
 //           
@@ -535,9 +548,12 @@ function MapIdentifier() => dword(0x18DACFC)
 //           Start of dynamic memory
 //           _______________________________________________________
 
-// $18F7B34: [8-bit] Loading Target Flags
+// $18F7B10: [32-bit] Pointer to Primary Game Object
+//           The value at this address is the address where the primary game engine object resides in memory.
+//           _______________________________________________________
+//           VALUE + 0x04 = [8-bit] Loading Target Flags
 //           When the game is transitioning between normal gameplay and something else like a cutscene or menu, this value will determine what the game loads up next.
-//           
+//
 //           0x00 = Go to the title screen on next loading transition
 //           0x01 = Go to the ending cutscenes on next loading transition (the value at 0x018F7B3C determines which ending plays)
 //           0x02 = Go to the main menu on next loading transition
@@ -545,27 +561,43 @@ function MapIdentifier() => dword(0x18DACFC)
 //           0x06 = Go in-game next loading transition (like when loading a save file)
 //           0x09 = Go to the debug menu on next loading transition
 //           0x0A = Go to the end game results screen on next loading transition
+//           0x0B = Go to credits on next loading transition
 //           0x0C = Go to the post-ending save game screen on next loading transition
-//           0x0D = Go to the main menu on next loading transition
+//           0x0D = Go to the main menu on next loading transition (save game screen after beating game)
 //           0x0E = Go to the opening cutscene on next loading transition
-function LoadingTargetFlags() => byte(0x18F7B34)
-
-// $18F7B3C: [8-bit] Ending Flag
-//           When the value at 0x018F7B34 is set to 0x0A (the next screen is the end results screen), this value can be used to determine which ending the player got.
-//           
+//
+//           _______________________________________________________
+//           VALUE + 0x0C = [8-bit] Ending Flag
+//           When the Loading Target Flags value is set to 0x0A (the next screen is the end results screen), this value can be used to determine which ending the player got.
+//
 //           In that case, the ending flag values are as follows:
 //           0x00 = BAD END
 //           0x01 = NORMAL END
 //           0x02 = GOOD END
-function EndingFlag() => byte(0x18F7B3C)
+function LoadingTargetFlag() => byte(dword(0x18F7B10) + 0x04)
+function EndingFlag() => byte(dword(0x18F7B10) + 0x0C)
 
 
 // ---------------------
 // ----- Constants -----
 // ---------------------
 
+LOADING_TARGET_FLAG_TITLE = 0x00
+LOADING_TARGET_FLAG_MAIN_MENU = 0x02
+LOADING_TARGET_FLAG_LOADED_GAME = 0x06
+LOADING_TARGET_FLAG_ENDING = 0x0A
+LOADING_TARGET_FLAG_CREDITS = 0x0B
+LOADING_TARGET_FLAG_POST_ENDING = 0x0C
+LOADING_TARGET_FLAG_FINAL_SAVE = 0x0D
+LOADING_TARGET_FLAG_NGPLUS = 0x0E
+
+ENDING_FLAG_BAD = 0x00
+ENDING_FLAG_NORMAL = 0x01
+ENDING_FLAG_GOOD = 0x02
+
 GAME_STATE_MAIN_MENU = 0x00
 GAME_STATE_MAIN_MENU_RETURN = 0x06
+GAME_STATE_MAIN_IN_GAME = 0x05
 
 MAP_INTRO_CUTSCENE = 0x09
 
@@ -606,12 +638,50 @@ MAP_ID_TOWN_4 = 0x12
 // ----- Logic Functions -----
 // ---------------------------
 
-function AtMainMenus() => GameStateFlag() == GAME_STATE_MAIN_MENU || GameStateFlag() == GAME_STATE_MAIN_MENU_RETURN
+function AtMainMenus() => GameStateFlag() == GAME_STATE_MAIN_MENU || GameStateFlag() == GAME_STATE_MAIN_MENU_RETURN || LoadingTargetFlag() == LOADING_TARGET_FLAG_TITLE || LoadingTargetFlag() == LOADING_TARGET_FLAG_MAIN_MENU
+    || LoadingTargetFlag() == LOADING_TARGET_FLAG_LOADED_GAME || LoadingTargetFlag() == LOADING_TARGET_FLAG_FINAL_SAVE || LoadingTargetFlag() == LOADING_TARGET_FLAG_NGPLUS
+
+function InGame() => GameStateFlag() == GAME_STATE_MAIN_IN_GAME && LoadingTargetFlag() != LOADING_TARGET_FLAG_TITLE && LoadingTargetFlag() != LOADING_TARGET_FLAG_MAIN_MENU && LoadingTargetFlag() != LOADING_TARGET_FLAG_LOADED_GAME
 
 function RabbitNotesCollected() => NoteCollected1() + NoteCollected2() + NoteCollected3() + NoteCollected4() + NoteCollected5()
     + NoteCollected6() + NoteCollected7() + NoteCollected8() + NoteCollected9() + NoteCollected10()
     + NoteCollected11() + NoteCollected12() + NoteCollected13() + NoteCollected14() + NoteCollected15()
     + NoteCollected16() + NoteCollected17() + NoteCollected18() + NoteCollected19()
+    
+function ForestItemsCollected() => ItemCollectionFlag_Forest1_1() + ItemCollectionFlag_Forest1_2() + ItemCollectionFlag_Forest1_3()
+    + ItemCollectionFlag_Forest2_1() + ItemCollectionFlag_Forest2_2() + ItemCollectionFlag_Forest2_3() + ItemCollectionFlag_Forest3_1()
+    + ItemCollectionFlag_Forest4_1() + ItemCollectionFlag_Forest4_2() + ItemCollectionFlag_Forest4_3()
+
+function InForest() => MapIdentifier() == MAP_ID_FOREST_1 || MapIdentifier() == MAP_ID_FOREST_2 || MapIdentifier() == MAP_ID_FOREST_3
+    || MapIdentifier() == MAP_ID_FOREST_4 || MapIdentifier() == MAP_ID_FOREST_5
+
+
+// ------------------------
+// ----- Achievements -----
+// ------------------------
+
+achievement(
+    id = 592608, badge = "671647",
+    title = "It's Not For Chopping Wood", points = 3,
+    description = "Find an axe made of gold",
+    trigger = InGame() && MapIdentifier() == MAP_ID_FOREST_3 && prev(CutsceneFlag_GoldenAxe()) == 0 && CutsceneFlag_GoldenAxe() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 592609, badge = "671646",
+    title = "Mothra In The Moonlight", points = 10,
+    description = "Defeat the boss in the forest",
+    trigger = InGame() && MapIdentifier() == MAP_ID_FOREST_5 && prev(DefeatedForestBossFlag()) == 0 && DefeatedForestBossFlag() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 592610, badge = "671648",
+    title = "Forest Explorer", points = 5,
+    description = "Collect all items hidden in the forest",
+    trigger = InGame() && prev(ForestItemsCollected()) == 9 && measured(ForestItemsCollected() == 10, when=InForest(), format="raw")
+)
 
 
 // -------------------------
@@ -648,31 +718,43 @@ MapLookup = {
     MAP_ID_TOWN_4: "Town-4"
 }
 
+EndingLookup = {
+    ENDING_FLAG_BAD: "BAD END",
+    ENDING_FLAG_NORMAL: "NORMAL END",
+    ENDING_FLAG_GOOD: "GOOD END"
+}
+
 function PlaytimeHours() => PlayTimePlaythroughSeconds() / 3600
 
 rich_presence_conditional_display(AtMainMenus(), "At the main menu")
 rich_presence_conditional_display(MapIdentifier() == MAP_INTRO_CUTSCENE, "Starting a new game")
-rich_presence_conditional_display(MapIdentifier() == MAP_ID_FOREST_5 && !HasDefeatedForestBoss(), "Forest Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+rich_presence_conditional_display(MapIdentifier() == MAP_ID_FOREST_5 && DefeatedForestBossFlag() == 0, "Forest Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
     rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
     rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
     rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
 )
-rich_presence_conditional_display(MapIdentifier() == MAP_ID_SEWER_5 && !HasDefeatedSewerBoss(), "Sewer Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+rich_presence_conditional_display(MapIdentifier() == MAP_ID_SEWER_5 && DefeatedSewerBossFlag() == 0, "Sewer Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
     rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
     rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
     rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
 )
-rich_presence_conditional_display(MapIdentifier() == MAP_ID_CASTLE_9 && !HasDefeatedCastleBoss(), "Castle Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+rich_presence_conditional_display(MapIdentifier() == MAP_ID_CASTLE_9 && DefeatedCastleBossFlag() == 0, "Castle Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
     rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
     rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
     rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
 )
-rich_presence_conditional_display(MapIdentifier() == MAP_ID_TOWN_4 && !HasDefeatedCastleBoss(), "Town Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+rich_presence_conditional_display(MapIdentifier() == MAP_ID_TOWN_4 && DefeatedTownBossFlag() == 0, "Town Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
     rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
     rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
     rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
 )
-rich_presence_conditional_display(MapIdentifier() == MAP_ID_SCHOOL_4 && !HasDefeatedFinalBoss(), "Final Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+rich_presence_conditional_display(MapIdentifier() == MAP_ID_SCHOOL_4 && DefeatedFinalBossFlag() == 0, "Final Boss Fight • Playtime: {0} • Notes: {1}/19 • Thrown Enemies: {2}",
+    rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
+    rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
+    rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
+)
+rich_presence_conditional_display(DefeatedFinalBossFlag() == 1 && (LoadingTargetFlag() == LOADING_TARGET_FLAG_ENDING || LoadingTargetFlag() == LOADING_TARGET_FLAG_CREDITS || LoadingTargetFlag() == LOADING_TARGET_FLAG_POST_ENDING), "{0} • Playtime: {1} • Notes: {2}/19 • Thrown Enemies: {3}",
+    rich_presence_lookup("Ending", EndingFlag(), EndingLookup, fallback="???"),
     rich_presence_value("PlaytimeMinutesSeconds", PlayTimePlaythroughSeconds(), "SECS"),
     rich_presence_value("Notes", RabbitNotesCollected(), "VALUE"),
     rich_presence_value("Enemy Throws", EnemiesThrown(), "VALUE")    
