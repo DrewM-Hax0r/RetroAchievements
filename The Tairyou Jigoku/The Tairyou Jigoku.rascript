@@ -34,25 +34,29 @@
 //           0x13 = Note that opens the shrine in the Town
 //           0x14 = Pliers (Key Item)
 //           0x15 = Fear Meds (Consumable Healing)
-function InventoryItemId() => dword(0x1894B30)
+INVENTORY_ITEM_ADDRESS = 0x1894B30
+function InventoryItemId() => dword(INVENTORY_ITEM_ADDRESS)
 
 // $1894B34: [32-Bit] Inventory Item Attributes
 //           Can represent something different depending on the type of item.
 //           For weapons/consumables, this is the number of uses the item has remaining.
 //           For rabbit notes, this is a secondary ID defining which note it is.
+INVENTORY_ATTR_ADDRESS = 0x1894B34
 function InventoryItemAttributes() => dword(0x1894B34)
 
 // $1896750: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up a stick in Sewer-1.
 //           BIT1 = After picking up a golf club in Sewer-1.
-function ItemCollectionFlags() => byte(0x1896750)
+function ItemCollectionFlag_Sewer1_1() => bit0(0x1896750)
+function ItemCollectionFlag_Sewer1_2() => bit1(0x1896750)
 
 // $1896754: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up a flashlight in Sewer-1.
 //           BIT1 = After picking up a pipe wrench in Sewer-2.
-function ItemCollectionFlags_2() => byte(0x1896754)
+function ItemCollectionFlag_Sewer1_3() => bit0(0x1896754)
+function ItemCollectionFlag_Sewer2_1() => bit1(0x1896754)
 
 // $1896758: [8-bit] Item Collection Flags
 //           
@@ -66,7 +70,7 @@ function ItemCollectionFlags_3() => byte(0x1896758)
 //           BIT0 = After picking up items dropped by the rabbit for the first time in Sewer-3.
 //           BIT1 = After picking up the golf club in Sewer-4.
 //           BIT2 = After picking up items dropped by the rabbit for the second time in Sewer-3.
-function ItemCollectionFlags_4() => byte(0x189675C)
+function ItemCollectionFlag_Sewer4_1() => bit1(0x189675C)
 
 // $1896764: [8-bit] Item Collection Flags
 //           
@@ -192,7 +196,7 @@ function SewerCutsceneFlags() => byte(0x18967C0)
 //           
 //           BIT0 = After turning the valve to drain the water in Sewer-4.
 //           BIT5 = After unlocking the door to the boss in Sewer-4.
-function SewerCutsceneFlags_2() => byte(0x18967CC)
+function CutsceneFlag_SewerDrain() => bit0(0x18967CC)
 
 // $18967D4: [8-bit] School Cutscene Flags
 //           
@@ -487,13 +491,14 @@ function ProgressionFlags_3() => byte(0x18968D2)
 
 // $18DA0F0: [8-bit] Game State Flag
 //           
-//           0x00 = Main Menu?
-//           0x01 - 0x03 = Loading from Main Menu?
-//           0x04 = Pause Screen?
+//           0x00 = Main Menu
+//           0x01 - 0x03 = Loading from Main Menu
+//           0x04 = Pause Screen
 //           0x05 = In-Game
 //           0x06 = Return to Main Menu after quitting
-//           0x09 = Black Fade Out Transition
+//           0x09 = Black Fade Out Transition before loading, or Quick Menu open
 //           0x0A = Loading between game areas
+//           0x0B = GAME OVER
 function GameStateFlag() => byte(0x18DA0F0)
 
 // $18DACE0: [8-bit] Game Freeze Flag
@@ -582,6 +587,10 @@ function EndingFlag() => byte(dword(0x18F7B10) + 0x0C)
 // ----- Constants -----
 // ---------------------
 
+DIFFICULTY_EASY = 0x00
+DIFFICULTY_NORMAL = 0x01
+DIFFICULTY_HARD = 0x02
+
 LOADING_TARGET_FLAG_TITLE = 0x00
 LOADING_TARGET_FLAG_MAIN_MENU = 0x02
 LOADING_TARGET_FLAG_LOADED_GAME = 0x06
@@ -598,6 +607,9 @@ ENDING_FLAG_GOOD = 0x02
 GAME_STATE_MAIN_MENU = 0x00
 GAME_STATE_MAIN_MENU_RETURN = 0x06
 GAME_STATE_MAIN_IN_GAME = 0x05
+GAME_STATE_PAUSE_MENU = 0x04
+GAME_STATE_QUICK_MENU = 0x09
+GAME_STATE_GAME_OVER = 0x0B
 
 MAP_INTRO_CUTSCENE = 0x09
 
@@ -633,6 +645,20 @@ MAP_ID_TOWN_2 = 0x10
 MAP_ID_TOWN_3 = 0x11
 MAP_ID_TOWN_4 = 0x12
 
+ITEM_UNEQ = 0xFFFFFFFF
+ITEM_BAT = 0x01
+ITEM_STICK = 0x02
+ITEM_GOLF_CLUB = 0x03
+ITEM_PIPE_WRENCH = 0x04
+ITEM_CANDIES = 0x05
+ITEM_PARTY_POPPER = 0x06
+ITEM_EYEDROPS = 0x07
+ITEM_TALISMAN = 0x08
+ITEM_BROOMSTICK = 0x09
+ITEM_BUG_SPRAY = 0x0A
+ITEM_FLASHLIGHT = 0x10
+ITEM_STRESS_MEDS = 0x15
+
 
 // ---------------------------
 // ----- Logic Functions -----
@@ -643,6 +669,8 @@ function AtMainMenus() => GameStateFlag() == GAME_STATE_MAIN_MENU || GameStateFl
 
 function InGame() => GameStateFlag() == GAME_STATE_MAIN_IN_GAME && LoadingTargetFlag() != LOADING_TARGET_FLAG_TITLE && LoadingTargetFlag() != LOADING_TARGET_FLAG_MAIN_MENU && LoadingTargetFlag() != LOADING_TARGET_FLAG_LOADED_GAME
 
+function RetryAfterGameOver() => prev(GameStateFlag()) == GAME_STATE_GAME_OVER && GameStateFlag() == GAME_STATE_MAIN_IN_GAME
+
 function RabbitNotesCollected() => NoteCollected1() + NoteCollected2() + NoteCollected3() + NoteCollected4() + NoteCollected5()
     + NoteCollected6() + NoteCollected7() + NoteCollected8() + NoteCollected9() + NoteCollected10()
     + NoteCollected11() + NoteCollected12() + NoteCollected13() + NoteCollected14() + NoteCollected15()
@@ -651,9 +679,34 @@ function RabbitNotesCollected() => NoteCollected1() + NoteCollected2() + NoteCol
 function ForestItemsCollected() => ItemCollectionFlag_Forest1_1() + ItemCollectionFlag_Forest1_2() + ItemCollectionFlag_Forest1_3()
     + ItemCollectionFlag_Forest2_1() + ItemCollectionFlag_Forest2_2() + ItemCollectionFlag_Forest2_3() + ItemCollectionFlag_Forest3_1()
     + ItemCollectionFlag_Forest4_1() + ItemCollectionFlag_Forest4_2() + ItemCollectionFlag_Forest4_3()
+    
+function SewerItemsCollected() => ItemCollectionFlag_Sewer1_1() + ItemCollectionFlag_Sewer1_2() + ItemCollectionFlag_Sewer1_3()
+    + ItemCollectionFlag_Sewer2_1() + ItemCollectionFlag_Sewer4_1()
 
 function InForest() => MapIdentifier() == MAP_ID_FOREST_1 || MapIdentifier() == MAP_ID_FOREST_2 || MapIdentifier() == MAP_ID_FOREST_3
     || MapIdentifier() == MAP_ID_FOREST_4 || MapIdentifier() == MAP_ID_FOREST_5
+    
+function InSewer() => MapIdentifier() == MAP_ID_SEWER_1 || MapIdentifier() == MAP_ID_SEWER_2 || MapIdentifier() == MAP_ID_SEWER_3
+    || MapIdentifier() == MAP_ID_SEWER_4 || MapIdentifier() == MAP_ID_SEWER_5
+
+function InventoryItemIdAddress(slot) => INVENTORY_ITEM_ADDRESS + (slot * 8)
+function InventoryItemAttrAddress(slot) => INVENTORY_ATTR_ADDRESS + (slot * 8)
+
+function AllInventoryIdAddresses() {
+    addresses = []
+    for slot in range(0, 899) {
+        array_push(addresses, InventoryItemIdAddress(slot))
+    }
+    return addresses
+}
+
+function UsedUpInventoryItemOnThisFrame(idAddress) {
+    return prev(dword(idAddress)) != ITEM_UNEQ && dword(idAddress) == ITEM_UNEQ
+}
+
+function UsedUpWeaponOnThisFrame() => GameStateFlag() != GAME_STATE_PAUSE_MENU && GameStateFlag() != GAME_STATE_QUICK_MENU && prev(EquipedInventorySlot()) != ITEM_UNEQ && EquipedInventorySlot() == ITEM_UNEQ
+
+function EquippedItemDecreaseUsesOnThisFrame() => EquipedInventorySlot() != ITEM_UNEQ && prev(dword(InventoryItemAttrAddress(EquipedInventorySlot()))) > dword(InventoryItemAttrAddress(EquipedInventorySlot()))
 
 
 // ------------------------
@@ -677,10 +730,43 @@ achievement(
 )
 
 achievement(
+    title = "Mothra Annihilation", points = 25,
+    description = "Defeat the boss in the forest on hard mode without using any weapons or healing items",
+    trigger = InGame() && DifficultySetting() == DIFFICULTY_HARD && never(MapIdentifier() != MAP_ID_FOREST_5)
+              && never(UsedUpWeaponOnThisFrame()) && never(EquippedItemDecreaseUsesOnThisFrame())
+              && (once(prev(MapIdentifier()) == MAP_ID_FOREST_4 && MapIdentifier() != MAP_ID_FOREST_5) || once(RetryAfterGameOver()))
+              && trigger_when(prev(DefeatedForestBossFlag()) == 0 && DefeatedForestBossFlag() == 1),
+    type = "missable"
+)
+
+achievement(
+    id = 593190, badge = "672459",
+    title = "Spin to Win", points = 3,
+    description = "Lower the water level in the sewer",
+    trigger = InGame() && MapIdentifier() == MAP_ID_SEWER_4 && prev(CutsceneFlag_SewerDrain()) == 0 && CutsceneFlag_SewerDrain() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 593191, badge = "672470",
+    title = "Lurking In The Darkness", points = 10,
+    description = "Defeat the boss in the sewer",
+    trigger = InGame() && MapIdentifier() == MAP_ID_SEWER_5 && prev(DefeatedSewerBossFlag()) == 0 && DefeatedSewerBossFlag() == 1,
+    type = "progression"
+)
+
+achievement(
     id = 592610, badge = "671648",
     title = "Forest Explorer", points = 5,
     description = "Collect all items hidden in the forest",
     trigger = InGame() && prev(ForestItemsCollected()) == 9 && measured(ForestItemsCollected() == 10, when=InForest(), format="raw")
+)
+
+achievement(
+    id = 593193, badge = "672472",
+    title = "Sewer Explorer", points = 5,
+    description = "Collect all items hidden in the sewer",
+    trigger = InGame() && prev(SewerItemsCollected()) == 4 && measured(SewerItemsCollected() == 5, when=InSewer(), format="raw")
 )
 
 
