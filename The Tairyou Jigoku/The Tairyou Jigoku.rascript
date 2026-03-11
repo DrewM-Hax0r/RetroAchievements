@@ -76,7 +76,8 @@ function ItemCollectionFlag_Sewer4_1() => bit1(0x189675C)
 //           
 //           BIT1 = After collecting some bug spray in a classroom in School-1.
 //           BIT2 = After collecting a golf glub in a classroom in School-1.
-function ItemCollectionFlags_5() => byte(0x1896764)
+function ItemCollectionFlag_School1_1() => bit1(0x1896764)
+function ItemCollectionFlag_School1_2() => bit2(0x1896764)
 
 // $1896768: [8-bit] Item Collection Flags
 //           
@@ -84,14 +85,17 @@ function ItemCollectionFlags_5() => byte(0x1896764)
 //           BIT1 = After picking up a party popper in a classroom in School-2 (right side).
 //           BIT2 = After picking up a party popper in a classroom in School-2 (left side).
 //           BIT3 = After picking up the item dropped by the rabbit in School-2.
-function ItemCollectionFlags_6() => byte(0x1896768)
+function ItemCollectionFlag_School2_1() => bit0(0x1896768)
+function ItemCollectionFlag_School2_2() => bit1(0x1896768)
+function ItemCollectionFlag_School2_3() => bit2(0x1896768)
 
 // $189676C: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up the bug spray in the music room in School-3.
 //           BIT1 = After picking up the broom in a classroom in School-3.
 //           BIT3 = After picking up the item dropped by the rabbit in School-3.
-function ItemCollectionFlags_7() => byte(0x189676C)
+function ItemCollectionFlag_School3_1() => bit0(0x189676C)
+function ItemCollectionFlag_School3_2() => bit1(0x189676C)
 
 // $1896778: [8-bit] Item Collection Flags
 //           
@@ -162,14 +166,20 @@ function ItemCollectionFlags_14() => byte(0x1896794)
 //           BIT3 = After picking up a party popper in the grand hall area of Castle-1.
 //           BIT4 = After picking up a broom in the grand hall area of Castle-1.
 //           BIT5 = After picking up the item dropped by the rabbit in Castle-1.
-function ItemCollectionFlags_15() => byte(0x189679C)
+function ItemCollectionFlag_Castle1_TowerKey() => bit0(0x189679C)
+function ItemCollectionFlag_Castle1_1() => bit1(0x189679C)
+function ItemCollectionFlag_Castle1_2() => bit2(0x189679C)
+function ItemCollectionFlag_Castle1_3() => bit3(0x189679C)
+function ItemCollectionFlag_Castle1_4() => bit4(0x189679C)
 
 // $18967A0: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up some candies in Castle-2.
 //           BIT1 = After picking up a broom in Castle-2.
 //           BIT2 = After picking up some fear meds in Castle-2.
-function ItemCollectionFlags_16() => byte(0x18967A0)
+function ItemCollectionFlag_Castle2_1() => bit0(0x18967A0)
+function ItemCollectionFlag_Castle2_2() => bit1(0x18967A0)
+function ItemCollectionFlag_Castle2_3() => bit2(0x18967A0)
 
 // $18967A4: [8-bit] Item Collection Flags
 //           
@@ -177,7 +187,9 @@ function ItemCollectionFlags_16() => byte(0x18967A0)
 //           BIT1 = After picking up some bug spray in Castle-3.
 //           BIT2 = After picking up a party popper in Castle-3.
 //           BIT3 = After picking up the item dropped by the rabbit in Castle-3.
-function ItemCollectionFlags_17() => byte(0x18967A4)
+function ItemCollectionFlag_Castle3_1() => bit0(0x18967A4)
+function ItemCollectionFlag_Castle3_2() => bit1(0x18967A4)
+function ItemCollectionFlag_Castle3_3() => bit2(0x18967A4)
 
 // $18967AC: [8-bit] Item Collection Flags
 //           
@@ -185,7 +197,11 @@ function ItemCollectionFlags_17() => byte(0x18967A4)
 //           BIT1 = After picking up some bug spray in Castle-5.
 //           BIT2 = After picking up a baseball bat in Castle-5.
 //           BIT3 = After picking up a golf club in Castle-5.
-function ItemCollectionFlags_18() => byte(0x18967AC)
+//           BIT4 = After picking up the item dropped by the rabbit in Castle-5.
+function ItemCollectionFlag_Castle5_1() => bit0(0x18967AC)
+function ItemCollectionFlag_Castle5_2() => bit1(0x18967AC)
+function ItemCollectionFlag_Castle5_3() => bit2(0x18967AC)
+function ItemCollectionFlag_Castle5_4() => bit3(0x18967AC)
 
 // $18967C0: [8-bit] Sewer Cutscene Flags
 //           
@@ -216,7 +232,7 @@ function SchoolCutsceneFlags_2() => byte(0x18967D5)
 // $18967D8: [8-bit] School Cutscene Flags
 //           
 //           BIT3 = After finding senpai's seat in a classroom in School-2.
-function SchoolCutsceneFlags_3() => byte(0x18967D8)
+function CutsceneFlag_SenpaiSeat() => bit3(0x18967D8)
 
 // $18967DC: [8-bit] School Cutscene Flags
 //           
@@ -254,7 +270,6 @@ function ForestCutsceneFlags_2() => byte(0x18967EC)
 //           
 //           BIT0 = After obtaining the golden axe from the toolshed in Forest-3.
 //           BIT1 = After entering Forest-3 for the first time.
-function ForestCutsceneFlags_3() => byte(0x18967F0)
 function CutsceneFlag_GoldenAxe() => bit0(0x18967F0)
 
 // $18967F4: [8-bit] Forest Cutscene Flags
@@ -671,10 +686,26 @@ function InGame() => GameStateFlag() == GAME_STATE_MAIN_IN_GAME && LoadingTarget
 
 function RetryAfterGameOver() => prev(GameStateFlag()) == GAME_STATE_GAME_OVER && GameStateFlag() == GAME_STATE_MAIN_IN_GAME
 
+function InSchool() => MapIdentifier() == MAP_ID_SCHOOL_1 || MapIdentifier() == MAP_ID_SCHOOL_2 || MapIdentifier() == MAP_ID_SCHOOL_3
+    || MapIdentifier() == MAP_ID_SCHOOL_4
+
+function InForest() => MapIdentifier() == MAP_ID_FOREST_1 || MapIdentifier() == MAP_ID_FOREST_2 || MapIdentifier() == MAP_ID_FOREST_3
+    || MapIdentifier() == MAP_ID_FOREST_4 || MapIdentifier() == MAP_ID_FOREST_5
+    
+function InSewer() => MapIdentifier() == MAP_ID_SEWER_1 || MapIdentifier() == MAP_ID_SEWER_2 || MapIdentifier() == MAP_ID_SEWER_3
+    || MapIdentifier() == MAP_ID_SEWER_4 || MapIdentifier() == MAP_ID_SEWER_5
+    
+function InCastle() => MapIdentifier() == MAP_ID_CASTLE_1 || MapIdentifier() == MAP_ID_CASTLE_2 || MapIdentifier() == MAP_ID_CASTLE_3
+    || MapIdentifier() == MAP_ID_CASTLE_4 || MapIdentifier() == MAP_ID_CASTLE_5 || MapIdentifier() == MAP_ID_CASTLE_6
+    || MapIdentifier() == MAP_ID_CASTLE_7 || MapIdentifier() == MAP_ID_CASTLE_8 || MapIdentifier() == MAP_ID_CASTLE_9
+
 function RabbitNotesCollected() => NoteCollected1() + NoteCollected2() + NoteCollected3() + NoteCollected4() + NoteCollected5()
     + NoteCollected6() + NoteCollected7() + NoteCollected8() + NoteCollected9() + NoteCollected10()
     + NoteCollected11() + NoteCollected12() + NoteCollected13() + NoteCollected14() + NoteCollected15()
     + NoteCollected16() + NoteCollected17() + NoteCollected18() + NoteCollected19()
+
+function SchoolItemsCollected() => ItemCollectionFlag_School1_1() + ItemCollectionFlag_School1_2() + ItemCollectionFlag_School2_1()
+    + ItemCollectionFlag_School2_2() + ItemCollectionFlag_School2_3() + ItemCollectionFlag_School3_1() + ItemCollectionFlag_School3_2()
     
 function ForestItemsCollected() => ItemCollectionFlag_Forest1_1() + ItemCollectionFlag_Forest1_2() + ItemCollectionFlag_Forest1_3()
     + ItemCollectionFlag_Forest2_1() + ItemCollectionFlag_Forest2_2() + ItemCollectionFlag_Forest2_3() + ItemCollectionFlag_Forest3_1()
@@ -682,12 +713,11 @@ function ForestItemsCollected() => ItemCollectionFlag_Forest1_1() + ItemCollecti
     
 function SewerItemsCollected() => ItemCollectionFlag_Sewer1_1() + ItemCollectionFlag_Sewer1_2() + ItemCollectionFlag_Sewer1_3()
     + ItemCollectionFlag_Sewer2_1() + ItemCollectionFlag_Sewer4_1()
-
-function InForest() => MapIdentifier() == MAP_ID_FOREST_1 || MapIdentifier() == MAP_ID_FOREST_2 || MapIdentifier() == MAP_ID_FOREST_3
-    || MapIdentifier() == MAP_ID_FOREST_4 || MapIdentifier() == MAP_ID_FOREST_5
     
-function InSewer() => MapIdentifier() == MAP_ID_SEWER_1 || MapIdentifier() == MAP_ID_SEWER_2 || MapIdentifier() == MAP_ID_SEWER_3
-    || MapIdentifier() == MAP_ID_SEWER_4 || MapIdentifier() == MAP_ID_SEWER_5
+function CastleItemsCollected() => ItemCollectionFlag_Castle1_1() + ItemCollectionFlag_Castle1_2() + ItemCollectionFlag_Castle1_3()
+    + ItemCollectionFlag_Castle1_4() + ItemCollectionFlag_Castle2_1() + ItemCollectionFlag_Castle2_2() + ItemCollectionFlag_Castle2_3()
+    + ItemCollectionFlag_Castle3_1() + ItemCollectionFlag_Castle3_2() + ItemCollectionFlag_Castle3_3() + ItemCollectionFlag_Castle5_1()
+    + ItemCollectionFlag_Castle5_2() + ItemCollectionFlag_Castle5_3() + ItemCollectionFlag_Castle5_4()
 
 function InventoryItemIdAddress(slot) => INVENTORY_ITEM_ADDRESS + (slot * 8)
 function InventoryItemAttrAddress(slot) => INVENTORY_ATTR_ADDRESS + (slot * 8)
@@ -756,6 +786,28 @@ achievement(
 )
 
 achievement(
+    id = 593363, badge = "672714",
+    title = "Castle Quest", points = 3,
+    description = "Found the key to the castle tower",
+    trigger = InGame() && MapIdentifier() == MAP_ID_CASTLE_1 && prev(ItemCollectionFlag_Castle1_TowerKey()) == 0 && ItemCollectionFlag_Castle1_TowerKey() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 593361, badge = "672689",
+    title = "Lord of the Flies", points = 10,
+    description = "Defeat the boss in the castle",
+    trigger = InGame() && MapIdentifier() == MAP_ID_CASTLE_9 && prev(DefeatedCastleBossFlag()) == 0 && DefeatedCastleBossFlag() == 1,
+    type = "progression"
+)
+
+achievement(
+    title = "School Explorer", points = 5,
+    description = "Collect all items hidden in the school",
+    trigger = InGame() && prev(SchoolItemsCollected()) == 6 && measured(SchoolItemsCollected() == 7, when=InSchool(), format="raw")
+)
+
+achievement(
     id = 592610, badge = "671648",
     title = "Forest Explorer", points = 5,
     description = "Collect all items hidden in the forest",
@@ -767,6 +819,20 @@ achievement(
     title = "Sewer Explorer", points = 5,
     description = "Collect all items hidden in the sewer",
     trigger = InGame() && prev(SewerItemsCollected()) == 4 && measured(SewerItemsCollected() == 5, when=InSewer(), format="raw")
+)
+
+achievement(
+    id = 593362, badge = "672713",
+    title = "Castle Explorer", points = 5,
+    description = "Collect all items hidden in the castle",
+    trigger = InGame() && prev(CastleItemsCollected()) == 13 && measured(CastleItemsCollected() == 14, when=InCastle(), format="raw")
+)
+
+achievement(
+    id = 593364, badge = "672715",
+    title = "Notice Me Senpai", points = 1,
+    description = "Find senpai's classroom seat in the school",
+    trigger = InGame() && MapIdentifier() == MAP_ID_SCHOOL_2 && prev(CutsceneFlag_SenpaiSeat()) == 0 && CutsceneFlag_SenpaiSeat() == 1
 )
 
 
