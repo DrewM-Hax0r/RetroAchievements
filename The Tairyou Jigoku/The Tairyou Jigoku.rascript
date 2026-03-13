@@ -141,14 +141,20 @@ function ItemCollectionFlag_Forest4_3() => bit2(0x1896784)
 //           BIT4 = After picking up the shrine note in Town-1.
 //           BIT5 = After picking up a baseball bat in Town-1.
 //           BIT6 = After picking up an item dropped by the rabbit in Town-1.
-function ItemCollectionFlags_12() => byte(0x189678C)
+function ItemCollectionFlag_Town1_1() => bit0(0x189678C)
+function ItemCollectionFlag_Town1_2() => bit1(0x189678C)
+function ItemCollectionFlag_Town1_3() => bit2(0x189678C)
+function ItemCollectionFlag_Town1_4() => bit3(0x189678C)
+function ItemCollectionFlag_Town1_5() => bit5(0x189678C)
 
 // $1896790: [8-bit] Item Collection Flags
 //           
 //           BIT0 = After picking up one of the warding talismans in Town-2.
 //           BIT1 = After picking up one of the warding talismans in Town-2.
 //           BIT2 = After picking up one of the warding talismans in Town-2.
-function ItemCollectionFlags_13() => byte(0x1896790)
+function ItemCollectionFlag_Town2_1() => bit0(0x1896790)
+function ItemCollectionFlag_Town2_2() => bit1(0x1896790)
+function ItemCollectionFlag_Town2_3() => bit2(0x1896790)
 
 // $1896794: [8-bit] Item Collection Flags
 //           
@@ -156,7 +162,9 @@ function ItemCollectionFlags_13() => byte(0x1896790)
 //           BIT1 = After picking up fear meds in Town-3.
 //           BIT2 = After picking up a pipe wrench in Town-3.
 //           BIT3 = After picking up the item dropped by the rabbit in Town-3.
-function ItemCollectionFlags_14() => byte(0x1896794)
+function ItemCollectionFlag_Town3_1() => bit0(0x1896794)
+function ItemCollectionFlag_Town3_2() => bit1(0x1896794)
+function ItemCollectionFlag_Town3_3() => bit2(0x1896794)
 
 // $189679C: [8-bit] Item Collection Flags
 //           
@@ -285,9 +293,9 @@ function TownCutsceneFlags() => byte(0x18967FC)
 // $1896804: [8-bit] Town Cutscene Flags
 //           
 //           BIT0 = After using the pliers to cut the barbed wire in Town-3.
-//           BIT1 = After unlocking the abandoned car in Town-3.
+//           BIT1 = After unlocking the abandoned car in Town-3 and finding the pliers.
 //           BIT2 = After seeing the abandoned car in Town-3.
-function TownCutsceneFlags_2() => byte(0x1896804)
+function CutsceneFlag_FoundPliers() => bit1(0x1896804)
 
 // $189680C: [8-bit] Castle Cutscene Flags
 //           
@@ -698,6 +706,9 @@ function InSewer() => MapIdentifier() == MAP_ID_SEWER_1 || MapIdentifier() == MA
 function InCastle() => MapIdentifier() == MAP_ID_CASTLE_1 || MapIdentifier() == MAP_ID_CASTLE_2 || MapIdentifier() == MAP_ID_CASTLE_3
     || MapIdentifier() == MAP_ID_CASTLE_4 || MapIdentifier() == MAP_ID_CASTLE_5 || MapIdentifier() == MAP_ID_CASTLE_6
     || MapIdentifier() == MAP_ID_CASTLE_7 || MapIdentifier() == MAP_ID_CASTLE_8 || MapIdentifier() == MAP_ID_CASTLE_9
+    
+function InTown() => MapIdentifier() == MAP_ID_TOWN_1 || MapIdentifier() == MAP_ID_TOWN_2 || MapIdentifier() == MAP_ID_TOWN_3
+    || MapIdentifier() == MAP_ID_TOWN_4
 
 function RabbitNotesCollected() => NoteCollected1() + NoteCollected2() + NoteCollected3() + NoteCollected4() + NoteCollected5()
     + NoteCollected6() + NoteCollected7() + NoteCollected8() + NoteCollected9() + NoteCollected10()
@@ -718,6 +729,10 @@ function CastleItemsCollected() => ItemCollectionFlag_Castle1_1() + ItemCollecti
     + ItemCollectionFlag_Castle1_4() + ItemCollectionFlag_Castle2_1() + ItemCollectionFlag_Castle2_2() + ItemCollectionFlag_Castle2_3()
     + ItemCollectionFlag_Castle3_1() + ItemCollectionFlag_Castle3_2() + ItemCollectionFlag_Castle3_3() + ItemCollectionFlag_Castle5_1()
     + ItemCollectionFlag_Castle5_2() + ItemCollectionFlag_Castle5_3() + ItemCollectionFlag_Castle5_4()
+    
+function TownItemsCollected() => ItemCollectionFlag_Town1_1() + ItemCollectionFlag_Town1_2() + ItemCollectionFlag_Town1_3()
+    + ItemCollectionFlag_Town1_4() + ItemCollectionFlag_Town1_5() + ItemCollectionFlag_Town2_1() + ItemCollectionFlag_Town2_2()
+    + ItemCollectionFlag_Town2_3() + ItemCollectionFlag_Town3_1() + ItemCollectionFlag_Town3_2() + ItemCollectionFlag_Town3_3()
 
 function InventoryItemIdAddress(slot) => INVENTORY_ITEM_ADDRESS + (slot * 8)
 function InventoryItemAttrAddress(slot) => INVENTORY_ATTR_ADDRESS + (slot * 8)
@@ -802,6 +817,23 @@ achievement(
 )
 
 achievement(
+    id = 593806, badge = "673192",
+    title = "Tairyou Theft Auto", points = 3,
+    description = "Found some rusty pliers in the town",
+    trigger = InGame() && MapIdentifier() == MAP_ID_TOWN_3 && prev(CutsceneFlag_FoundPliers()) == 0 && CutsceneFlag_FoundPliers() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 593801, badge = "673187",
+    title = "Lifting the Curse", points = 10,
+    description = "Defeat the boss in the town",
+    trigger = InGame() && MapIdentifier() == MAP_ID_TOWN_4 && prev(DefeatedTownBossFlag()) == 0 && DefeatedTownBossFlag() == 1,
+    type = "progression"
+)
+
+achievement(
+    id = 593803, badge = "673189",
     title = "School Explorer", points = 5,
     description = "Collect all items hidden in the school",
     trigger = InGame() && prev(SchoolItemsCollected()) == 6 && measured(SchoolItemsCollected() == 7, when=InSchool(), format="raw")
@@ -826,6 +858,13 @@ achievement(
     title = "Castle Explorer", points = 5,
     description = "Collect all items hidden in the castle",
     trigger = InGame() && prev(CastleItemsCollected()) == 13 && measured(CastleItemsCollected() == 14, when=InCastle(), format="raw")
+)
+
+achievement(
+    id = 593805, badge = "673191",
+    title = "Town Explorer", points = 5,
+    description = "Collect all items hidden in the town",
+    trigger = InGame() && prev(TownItemsCollected()) == 10 && measured(TownItemsCollected() == 11, when=InTown(), format="raw")
 )
 
 achievement(
