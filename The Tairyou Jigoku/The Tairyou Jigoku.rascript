@@ -615,6 +615,7 @@ DIFFICULTY_NORMAL = 0x01
 DIFFICULTY_HARD = 0x02
 
 LOADING_TARGET_FLAG_TITLE = 0x00
+LOADING_TARGET_FLAG_PRE_ENDING = 0x01
 LOADING_TARGET_FLAG_MAIN_MENU = 0x02
 LOADING_TARGET_FLAG_LOADED_GAME = 0x06
 LOADING_TARGET_FLAG_ENDING = 0x0A
@@ -693,6 +694,8 @@ function AtMainMenus() => GameStateFlag() == GAME_STATE_MAIN_MENU || GameStateFl
 function InGame() => GameStateFlag() == GAME_STATE_MAIN_IN_GAME && LoadingTargetFlag() != LOADING_TARGET_FLAG_TITLE && LoadingTargetFlag() != LOADING_TARGET_FLAG_MAIN_MENU && LoadingTargetFlag() != LOADING_TARGET_FLAG_LOADED_GAME
 
 function RetryAfterGameOver() => prev(GameStateFlag()) == GAME_STATE_GAME_OVER && GameStateFlag() == GAME_STATE_MAIN_IN_GAME
+
+function GetEnding(endingFlag) => InGame() && prev(LoadingTargetFlag()) == LOADING_TARGET_FLAG_PRE_ENDING && LoadingTargetFlag() == LOADING_TARGET_FLAG_ENDING && EndingFlag() == endingFlag
 
 function InSchool() => MapIdentifier() == MAP_ID_SCHOOL_1 || MapIdentifier() == MAP_ID_SCHOOL_2 || MapIdentifier() == MAP_ID_SCHOOL_3
     || MapIdentifier() == MAP_ID_SCHOOL_4
@@ -803,7 +806,7 @@ achievement(
 achievement(
     id = 593363, badge = "672714",
     title = "Castle Quest", points = 3,
-    description = "Found the key to the castle tower",
+    description = "Find the key to the castle tower",
     trigger = InGame() && MapIdentifier() == MAP_ID_CASTLE_1 && prev(ItemCollectionFlag_Castle1_TowerKey()) == 0 && ItemCollectionFlag_Castle1_TowerKey() == 1,
     type = "progression"
 )
@@ -819,7 +822,7 @@ achievement(
 achievement(
     id = 593806, badge = "673192",
     title = "Tairyou Theft Auto", points = 3,
-    description = "Found some rusty pliers in the town",
+    description = "Find some rusty pliers in the town",
     trigger = InGame() && MapIdentifier() == MAP_ID_TOWN_3 && prev(CutsceneFlag_FoundPliers()) == 0 && CutsceneFlag_FoundPliers() == 1,
     type = "progression"
 )
@@ -830,6 +833,30 @@ achievement(
     description = "Defeat the boss in the town",
     trigger = InGame() && MapIdentifier() == MAP_ID_TOWN_4 && prev(DefeatedTownBossFlag()) == 0 && DefeatedTownBossFlag() == 1,
     type = "progression"
+)
+
+achievement(
+    id = 596416, badge = "676777",
+    title = "The Overwhelming Hell", points = 10,
+    description = "Complete the game with the BAD ending on any difficulty",
+    trigger = GetEnding(ENDING_FLAG_BAD),
+    type = "win_condition"
+)
+
+achievement(
+    id = 596417, badge = "676778",
+    title = "The Mediocre Hell", points = 10,
+    description = "Complete the game with the NORMAL ending on any difficulty",
+    trigger = GetEnding(ENDING_FLAG_NORMAL),
+    type = "win_condition"
+)
+
+achievement(
+    id = 596420, badge = "676809"",
+    title = "The Underwhelming Hell", points = 10,
+    description = "Complete the game with the GOOD ending on any difficulty",
+    trigger = GetEnding(ENDING_FLAG_GOOD),
+    type = "win_condition"
 )
 
 achievement(
