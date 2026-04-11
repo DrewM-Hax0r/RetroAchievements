@@ -756,6 +756,17 @@ function UsedUpWeaponOnThisFrame() => GameStateFlag() != GAME_STATE_PAUSE_MENU &
 
 function EquippedItemDecreaseUsesOnThisFrame() => EquipedInventorySlot() != ITEM_UNEQ && prev(dword(InventoryItemAttrAddress(EquipedInventorySlot()))) > dword(InventoryItemAttrAddress(EquipedInventorySlot()))
 
+function CollectedTotalOfRabbitNotesOnThisFrame(noteCount, measure) {
+    result = prev(RabbitNotesCollected()) == (noteCount - 1)
+    goalReached = RabbitNotesCollected() == noteCount
+    if (measure) {
+        result = result && measured(goalReached, when=InGame(), format="raw")
+    } else {
+        result = InGame() && result && goalReached
+    }
+    return result
+}
+
 
 // ------------------------
 // ----- Achievements -----
@@ -836,7 +847,7 @@ achievement(
 )
 
 achievement(
-    id = 596416, badge = "676777",
+    id = 596416, badge = "681561",
     title = "The Overwhelming Hell", points = 10,
     description = "Complete the game with the BAD ending on any difficulty",
     trigger = GetEnding(ENDING_FLAG_BAD),
@@ -844,7 +855,7 @@ achievement(
 )
 
 achievement(
-    id = 596417, badge = "676778",
+    id = 596417, badge = "681562",
     title = "The Mediocre Hell", points = 10,
     description = "Complete the game with the NORMAL ending on any difficulty",
     trigger = GetEnding(ENDING_FLAG_NORMAL),
@@ -852,11 +863,32 @@ achievement(
 )
 
 achievement(
-    id = 596420, badge = "676809"",
+    id = 596420, badge = "681563",
     title = "The Underwhelming Hell", points = 10,
     description = "Complete the game with the GOOD ending on any difficulty",
     trigger = GetEnding(ENDING_FLAG_GOOD),
     type = "win_condition"
+)
+
+achievement(
+    id = 600926, badge = "681556",
+    title = "Lost Letters", points = 2,
+    description = "Collect 6 notes dropped by the rabbit",
+    trigger = CollectedTotalOfRabbitNotesOnThisFrame(6, false)
+)
+
+achievement(
+    id = 600927, badge = "681557",
+    title = "Nutty Notes", points = 5,
+    description = "Collect 12 notes dropped by the rabbit",
+    trigger = CollectedTotalOfRabbitNotesOnThisFrame(12, false)
+)
+
+achievement(
+    id = 600928, badge = "681558",
+    title = "Memo Madness", points = 10,
+    description = "Collect all 19 notes dropped by the rabbit",
+    trigger = CollectedTotalOfRabbitNotesOnThisFrame(19, true)
 )
 
 achievement(
